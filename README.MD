@@ -6,7 +6,7 @@ Purpose of doing this project, is to further practise core java topics as multi-
 new algorithms as Knuth-Morris-Pratt algorithm and Rabin-Karp algorithm for data hashing, searching and sorting - and just some more POJO java.
 
 Also: This is the graduate project of the Java Core Track, which covers the most yet undone learning topics and thus
-will serve to finish this last unfinished Jetbrains java tracks.
+will serve to finish this last unfinished Jetbrains java track.
 
 ## Technology / External Libraries
 
@@ -39,3 +39,6 @@ Have fun!
 ## Progress
 
 30.08.22 Project started - just git repo and gradle setup.
+
+02.09.22 Stage 1 completed - analyze arbitrary (also binary) file given as argument for occurrence of a (type defining)
+string - also given as argument. Implemented in two versions with Files.readAllBytes and FileInputStream for huge files.
