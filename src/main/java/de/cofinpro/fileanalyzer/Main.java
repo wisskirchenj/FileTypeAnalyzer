@@ -15,6 +15,6 @@ public class Main {
             log.error("Usage: java fileanalyzer.Main <path-to-file> <search-string> <found-message>");
             return;
         }
-        new FileTypeAnalyzer(args, new ConsolePrinter()).analyze();
+        new FileTypeAnalyzer(new ConsolePrinter()).analyze(args);
     }
 }

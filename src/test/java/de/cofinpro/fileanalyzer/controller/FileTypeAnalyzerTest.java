@@ -1,7 +1,8 @@
 package de.cofinpro.fileanalyzer.controller;
 
-import de.cofinpro.fileanalyzer.config.ApplicationConfig;
+import de.cofinpro.fileanalyzer.config.MessageResourceBundle;
 import de.cofinpro.fileanalyzer.io.ConsolePrinter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,10 +17,17 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class FileTypeAnalyzerTest {
 
-    final String FOUND_MSG = "FOUND";
+    String FOUND_MSG = "FOUND";
 
     @Mock
     ConsolePrinter printer;
+
+    FileTypeAnalyzer fileTypeAnalyzer;
+
+    @BeforeEach
+    void setup() {
+        fileTypeAnalyzer = new FileTypeAnalyzer(printer);
+    }
 
     @ParameterizedTest
     @CsvSource({
@@ -29,7 +37,7 @@ class FileTypeAnalyzerTest {
     })
     void whenFileWithGivenPatternAnalyze_FoundMessagePrinted(String filepath, String toSearch) {
         String[] args = new String[] {filepath, toSearch, FOUND_MSG};
-        new FileTypeAnalyzer(args, printer).analyze();
+        fileTypeAnalyzer.analyze(args);
         verify(printer).printInfo(FOUND_MSG);
         verify(printer, never()).printError(anyString());
     }
@@ -42,7 +50,7 @@ class FileTypeAnalyzerTest {
     })
     void whenFileWithGivenPatternAnalyzeFile_FoundMessagePrinted(String filepath, String toSearch) {
         String[] args = new String[] {filepath, toSearch, FOUND_MSG};
-        new FileTypeAnalyzer(args, printer).analyzeFile();
+        fileTypeAnalyzer.analyzeFile(args);
         verify(printer).printInfo(FOUND_MSG);
         verify(printer, never()).printError(anyString());
     }
@@ -55,15 +63,15 @@ class FileTypeAnalyzerTest {
     })
     void whenFileWithoutGivenPatternAnalyze_UnknownPrinted(String filepath, String toSearch) {
         String[] args = new String[] {filepath, toSearch, FOUND_MSG};
-        new FileTypeAnalyzer(args, printer).analyze();
-        verify(printer).printInfo(ApplicationConfig.UNKNOWN_FILE_TYPE_MSG);
+        fileTypeAnalyzer.analyze(args);
+        verify(printer).printInfo(MessageResourceBundle.UNKNOWN_FILE_TYPE_MSG);
         verify(printer, never()).printError(anyString());
     }
 
     @Test
     void whenFileNotExist_IOError() {
         String[] args = new String[] {"src/test/resources/notthere", "toSearch", FOUND_MSG};
-        new FileTypeAnalyzer(args, printer).analyze();
+        fileTypeAnalyzer.analyze(args);
         verify(printer).printError(anyString());
     }
 }
