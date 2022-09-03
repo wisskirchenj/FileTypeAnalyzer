@@ -35,7 +35,7 @@ public class FileTypeAnalyzer {
      * Not so surprising on 2nd thought, that a image containing a full OS and more has some pdf in it somewhere :-)
      */
     public void analyze(String[] args) {
-        initFields(args);
+        scanCLArguments(args);
         try (InputStream stream = new FileInputStream(filePath)) {
             byte[] buffer = new byte[BUFFER_SIZE];
 
@@ -48,11 +48,15 @@ public class FileTypeAnalyzer {
             printer.printInfo(UNKNOWN_FILE_TYPE_MSG);
 
         } catch (IOException exception) {
-            printer.printError("Could not open the given file '%s'!%n%s".formatted( filePath, exception.toString()));
+            printer.printError("Could not open the given file '%s'!%n%s".formatted(filePath, exception.toString()));
         }
     }
 
-    private void initFields(String[] args) {
+    /**
+     * scan command line (CL) arguments into class fields used in analyze logic.
+     * @param args CL arguments given
+     */
+    private void scanCLArguments(String[] args) {
         filePath = args[0];
         searchPattern = Pattern.compile(args[1]);
         foundMessage = args[2];
@@ -63,13 +67,13 @@ public class FileTypeAnalyzer {
      * Not suited for big files of 20GB or more -> OutOfMemoryError
      */
     public void analyzeFile(String[] args) {
-        initFields(args);
+        scanCLArguments(args);
         try {
             Matcher matcher = searchPattern.matcher(new String(Files.readAllBytes(Path.of(filePath))));
             boolean found = matcher.find();
             printer.printInfo(found ? foundMessage : UNKNOWN_FILE_TYPE_MSG);
         } catch (IOException exception) {
-            printer.printError("Could not open the given file '%s'!%n%s".formatted( filePath, exception.toString()));
+            printer.printError("Could not open the given file '%s'!%n%s".formatted(filePath, exception.toString()));
         }
     }
 }
