@@ -36,21 +36,8 @@ class FileTypeAnalyzerTest {
             "src/test/resources/setup-instructions.pdf, Gradle"
     })
     void whenFileWithGivenPatternAnalyze_FoundMessagePrinted(String filepath, String toSearch) {
-        String[] args = new String[] {filepath, toSearch, FOUND_MSG};
+        String[] args = new String[] {"--naive", filepath, toSearch, FOUND_MSG};
         fileTypeAnalyzer.analyze(args);
-        verify(printer).printInfo(FOUND_MSG);
-        verify(printer, never()).printError(anyString());
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-            "src/test/resources/jetbrains-academy-certificate-12-java-backend-developer.pdf, %PDF-",
-            "src/test/resources/setup-instructions.pdf, %PDF-",
-            "src/test/resources/setup-instructions.pdf, Gradle"
-    })
-    void whenFileWithGivenPatternAnalyzeFile_FoundMessagePrinted(String filepath, String toSearch) {
-        String[] args = new String[] {filepath, toSearch, FOUND_MSG};
-        fileTypeAnalyzer.analyzeFile(args);
         verify(printer).printInfo(FOUND_MSG);
         verify(printer, never()).printError(anyString());
     }
@@ -62,7 +49,7 @@ class FileTypeAnalyzerTest {
             "src/test/resources/setup-instructions.pdf, its_not_in"
     })
     void whenFileWithoutGivenPatternAnalyze_UnknownPrinted(String filepath, String toSearch) {
-        String[] args = new String[] {filepath, toSearch, FOUND_MSG};
+        String[] args = new String[] {"--naive", filepath, toSearch, FOUND_MSG};
         fileTypeAnalyzer.analyze(args);
         verify(printer).printInfo(MessageResourceBundle.UNKNOWN_FILE_TYPE_MSG);
         verify(printer, never()).printError(anyString());
@@ -70,7 +57,7 @@ class FileTypeAnalyzerTest {
 
     @Test
     void whenFileNotExist_IOError() {
-        String[] args = new String[] {"src/test/resources/notthere", "toSearch", FOUND_MSG};
+        String[] args = new String[] {"--naive", "src/test/resources/notthere", "toSearch", FOUND_MSG};
         fileTypeAnalyzer.analyze(args);
         verify(printer).printError(anyString());
     }

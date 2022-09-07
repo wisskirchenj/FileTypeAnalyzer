@@ -1,12 +1,11 @@
 package de.cofinpro.fileanalyzer.controller;
 
+import de.cofinpro.fileanalyzer.algorithms.KnuthMorrisPrattAnalyzer;
+import de.cofinpro.fileanalyzer.algorithms.NaiveSearchStrategy;
+import de.cofinpro.fileanalyzer.algorithms.SearchStrategy;
 import de.cofinpro.fileanalyzer.io.ConsolePrinter;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static de.cofinpro.fileanalyzer.config.MessageResourceBundle.*;
 
@@ -15,13 +14,14 @@ import static de.cofinpro.fileanalyzer.config.MessageResourceBundle.*;
  */
 public class FileTypeAnalyzer {
 
-    private static final int BUFFER_SIZE = 134217728;
+    private static final int BUFFER_SIZE = 1;
     private static final int END_OF_STREAM = -1;
 
     private final ConsolePrinter printer;
 
+    private SearchStrategy searchStrategy;
     private String filePath;
-    private Pattern searchPattern;
+    private String searchText;
     private String foundMessage;
 
     public FileTypeAnalyzer(ConsolePrinter consolePrinter) {
@@ -37,13 +37,15 @@ public class FileTypeAnalyzer {
     public void analyze(String[] args) {
         scanCLArguments(args);
         try (InputStream stream = new FileInputStream(filePath)) {
-            byte[] buffer = new byte[BUFFER_SIZE];
+            byte[] buffer = new byte[searchText.length() + BUFFER_SIZE];
 
-            while (stream.read(buffer) != END_OF_STREAM) {
-                if (new String(buffer).contains(searchPattern.toString())) {
+            while (stream.read(buffer, searchText.length(), BUFFER_SIZE) != END_OF_STREAM) {
+                if (searchStrategy.bufferContainsSearchText(buffer, searchText)) {
                     printer.printInfo(foundMessage);
                     return;
                 }
+                // copy the last searchText length many characters from the end to the beginning to enable clipping search
+                System.arraycopy(buffer, buffer.length - searchText.length(), buffer, 0, searchText.length());
             }
             printer.printInfo(UNKNOWN_FILE_TYPE_MSG);
 
@@ -57,23 +59,9 @@ public class FileTypeAnalyzer {
      * @param args CL arguments given
      */
     private void scanCLArguments(String[] args) {
-        filePath = args[0];
-        searchPattern = Pattern.compile(args[1]);
-        foundMessage = args[2];
-    }
-
-    /**
-     * well-suited message for files up to around 2GB or a little more, that fit into the heap memory.
-     * Not suited for big files of 20GB or more -> OutOfMemoryError
-     */
-    public void analyzeFile(String[] args) {
-        scanCLArguments(args);
-        try {
-            Matcher matcher = searchPattern.matcher(new String(Files.readAllBytes(Path.of(filePath))));
-            boolean found = matcher.find();
-            printer.printInfo(found ? foundMessage : UNKNOWN_FILE_TYPE_MSG);
-        } catch (IOException exception) {
-            printer.printError("Could not open the given file '%s'!%n%s".formatted(filePath, exception.toString()));
-        }
+        searchStrategy = "--KMP".equals(args[0]) ? new KnuthMorrisPrattAnalyzer() : new NaiveSearchStrategy();
+        filePath = args[1];
+        searchText = args[2];
+        foundMessage = args[3];
     }
 }
