@@ -42,3 +42,6 @@ Have fun!
 
 02.09.22 Stage 1 completed - analyze arbitrary (also binary) file given as argument for occurrence of a (type defining)
 string - also given as argument. Implemented in two versions with Files.readAllBytes and FileInputStream for huge files.
+
+08.09.22 Stage 2 completed - Knuth-Morris-Pratt (KMP) algorithm implemented accelerating the string search about a factor 4-5.
+Used strategy pattern in controller class to dynamically choose a SearchAlgorithm (naive vs KMP)

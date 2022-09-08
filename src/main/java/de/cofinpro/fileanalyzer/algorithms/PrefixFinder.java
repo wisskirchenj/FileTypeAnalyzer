@@ -2,36 +2,37 @@ package de.cofinpro.fileanalyzer.algorithms;
 
 import java.util.Arrays;
 
+/**
+ * class for finding the prefix function of a string, as needed by search algorithms as Knuth-Morris-Pratt.
+ */
 public class PrefixFinder {
 
     private final String text;
-
-    private final int[] p;
-
+    private final int[] prefix;
 
     public PrefixFinder(String text) {
         this.text = text;
-        p = new int[text.length()];
-        Arrays.fill(p, 0);
+        prefix = new int[text.length()];
     }
 
+    /**
+     * main entry point of the class, that calculates and returns the prefix for the string set as text property.
+     * @return the prefix array for the string given as constructor parameter.
+     */
     public int[] getPrefix() {
         // implementation follows https://hyperskill.org/learn/step/17545, §4
-        Arrays.setAll(p, this::findPrefixElement);
-        return p.clone();
+        Arrays.setAll(prefix, this::findPrefixElement);
+        return prefix;
     }
 
     private int findPrefixElement(int i) {
-        if (i == 0) {
-            return 0;
-        }
         int j = i;
-        do {
-            j = p[j - 1];
+        while (j > 0) {
+            j = prefix[j - 1];
             if (text.charAt(i) == text.charAt(j)) {
                 return j + 1;
             }
-        } while (j > 0);
+        }
         return 0;
     }
 }
