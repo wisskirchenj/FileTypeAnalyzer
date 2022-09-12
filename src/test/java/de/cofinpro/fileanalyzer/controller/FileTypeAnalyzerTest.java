@@ -10,9 +10,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Path;
+
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class FileTypeAnalyzerTest {
@@ -22,11 +23,12 @@ class FileTypeAnalyzerTest {
     @Mock
     ConsolePrinter printer;
 
-    FileTypeAnalyzer fileTypeAnalyzer;
+    @Mock
+    ParallelFileAnalyzer executor;
 
     @BeforeEach
     void setup() {
-        fileTypeAnalyzer = new FileTypeAnalyzer(printer);
+        when(executor.getFoundMessage()).thenReturn(FOUND_MSG);
     }
 
     @ParameterizedTest
@@ -35,10 +37,11 @@ class FileTypeAnalyzerTest {
             "src/test/resources/setup-instructions.pdf, %PDF-",
             "src/test/resources/setup-instructions.pdf, Gradle"
     })
-    void whenFileWithGivenPatternAnalyze_FoundMessagePrinted(String filepath, String toSearch) {
-        String[] args = new String[] {"--naive", filepath, toSearch, FOUND_MSG};
-        fileTypeAnalyzer.analyze(args);
-        verify(printer).printInfo(FOUND_MSG);
+    void whenFileWithGivenPatternAnalyze_FoundMessagePrinted(String pathname, String toSearch) {
+        Path filepath = Path.of(pathname);
+        when(executor.getSearchText()).thenReturn(toSearch);
+        new FileTypeAnalyzer(executor, printer).analyze(filepath);
+        verify(printer).printInfo(filepath.getFileName().toString() + ": " + FOUND_MSG);
         verify(printer, never()).printError(anyString());
     }
 
@@ -48,17 +51,18 @@ class FileTypeAnalyzerTest {
             "src/test/resources/setup-instructions.pdf, xyxyxy",
             "src/test/resources/setup-instructions.pdf, its_not_in"
     })
-    void whenFileWithoutGivenPatternAnalyze_UnknownPrinted(String filepath, String toSearch) {
-        String[] args = new String[] {"--naive", filepath, toSearch, FOUND_MSG};
-        fileTypeAnalyzer.analyze(args);
-        verify(printer).printInfo(MessageResourceBundle.UNKNOWN_FILE_TYPE_MSG);
+    void whenFileWithoutGivenPatternAnalyze_UnknownPrinted(String pathname, String toSearch) {
+        Path filepath = Path.of(pathname);
+        when(executor.getSearchText()).thenReturn(toSearch);
+        new FileTypeAnalyzer(executor, printer).analyze(filepath);
+        verify(printer).printInfo(filepath.getFileName().toString() + ": " + MessageResourceBundle.UNKNOWN_FILE_TYPE_MSG);
         verify(printer, never()).printError(anyString());
     }
 
     @Test
     void whenFileNotExist_IOError() {
-        String[] args = new String[] {"--naive", "src/test/resources/notthere", "toSearch", FOUND_MSG};
-        fileTypeAnalyzer.analyze(args);
+        when(executor.getSearchText()).thenReturn("toSearch");
+        new FileTypeAnalyzer(executor, printer).analyze(Path.of("src/test/resources/notthere"));
         verify(printer).printError(anyString());
     }
 }
