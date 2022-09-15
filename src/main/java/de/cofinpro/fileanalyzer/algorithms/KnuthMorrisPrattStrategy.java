@@ -16,11 +16,11 @@ public class KnuthMorrisPrattStrategy implements SearchStrategy {
 
     /**
      * the KMP algorithm is adapted immediately on the byte-array read by the FileInputStream of the analyzer
-     * method to save memory and decoding time. To compare it with the serahc string given as String type,
-     * the pattern is encoded to byte[] too. The compare in KMP is on bytes then - instead of char.
+     * method to save memory and decoding time. To compare it with the search string given as String type,
+     * the searchText is encoded to byte[] too. The compare in KMP is on bytes then - instead of char.
      * @param buffer the bytes buffer to search in
      * @param searchText the text to search
-     * @return true if serach string found, false else.
+     * @return true if search string found, false else.
      */
     @Override
     public boolean bufferContainsSearchText(byte[] buffer, String searchText) {
