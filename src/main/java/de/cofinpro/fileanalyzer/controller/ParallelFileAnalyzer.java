@@ -35,18 +35,29 @@ public class ParallelFileAnalyzer {
      */
     public void run(String[] args) {
         scanCLArguments(args);
-        final var analyzer = new FileTypeAnalyzer(new Patterns(patternsPath), printer);
+        final var patterns = new Patterns(patternsPath);
         var executor = Executors.newFixedThreadPool(ANALYZER_THREAD_COUNT);
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Path.of(dirPath))) {
             directoryStream.forEach(path -> {
                 if (Files.isRegularFile(path)) {
-                    executor.submit(() -> analyzer.analyze(path));
+                    executor.submit(getJob(patterns, path));
                 }
             });
             shutDownExecutorAndWait(executor);
         } catch (IOException exception) {
             printer.printError("Could not read from directory '%s'!%n%s".formatted(dirPath, exception.toString()));
         }
+    }
+
+    private Runnable getJob(Patterns patterns, Path path) {
+        return () -> {
+            try {
+                new FileTypeAnalyzer(patterns, printer).analyze(path);
+            } catch (Exception exception) {
+                printer.printError("Exception in thread for %s%n%s".formatted(path, exception));
+                exception.printStackTrace();
+            }
+        };
     }
 
     /**

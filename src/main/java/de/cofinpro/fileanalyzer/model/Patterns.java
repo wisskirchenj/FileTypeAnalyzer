@@ -30,6 +30,11 @@ public class Patterns {
         return searchPatterns;
     }
 
+    public long getMaxSearchLength() {
+        return searchPatterns.stream()
+                .map(SearchPattern::searchText).mapToLong(String::length).max().orElse(0);
+    }
+
     /**
      * reads a CSV file (e.g. patterns.db) into a priority descending sorted list of SearchPatterns
      * @param patternsPath path string to the CSV-file with patterns (patterns.db)
