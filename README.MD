@@ -11,6 +11,9 @@ will serve to finish this last unfinished Jetbrains java track.
 ## Technology / External Libraries
 
 - POJO Java 18,
+- multi-threading with Java Executor-Service (Java-core .util.concurrent)
+- speed-streaming searches of arbitrarily large files - e.g >65 GB docker files... (in <60 sec.)
+- prefix, hashing and search algorithms as Knuth-Morris-Prath (best performance!) and Rabin-Karp.
 - with Lombok annotation processors,
 - Apache Log4j SLF4J API binding to Log4j 2 logging and
 - Junit 5 with
@@ -28,7 +31,13 @@ be compared regarding the speed (of search and sorting).
 
 CL-Command overview:
 
-coming up..
+> usage: java fileanalyzer.Main <directory-path> <patterns-csv-path>
+
+all files in the directory path given are "file-type-analyzed" using the patterns-csv-file given as
+a dataset for prioritized search patterns to detect file types... 
+Priorization means, that e.g. when we find the identifying character sequences for a zip-File AND a
+MS PowerPoint-file in one file, then we know it is a PPT, because all PPT are stored as Zips.
+this is realized, by giving the identifying PPT-sequence a higher priority than the zip-sequence.
 
 Have fun!
 
