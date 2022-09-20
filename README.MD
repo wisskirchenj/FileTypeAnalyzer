@@ -31,7 +31,7 @@ be compared regarding the speed (of search and sorting).
 
 CL-Command overview:
 
-> usage: java fileanalyzer.Main <pre><directory-path> <patterns-csv-path></pre>
+> usage: java fileanalyzer.Main &lt;directory-path&gt; &lt;patterns-csv-path&gt;
 
 all files in the directory path given are "file-type-analyzed" using the patterns-csv-file given as
 a dataset for prioritized search patterns to detect file types... 
