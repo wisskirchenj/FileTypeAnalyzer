@@ -46,12 +46,23 @@ public class KnuthMorrisPrattStrategy implements SearchStrategy {
         return false;
     }
 
+    /**
+     * as the pattern list is searched priority descending, a hit in the current buffer can stop the further search of
+     * this buffer. The foundMessage of the pattern is stored. All patterns with lower or equal priority are removed from
+     * further buffer searches.
+     * @param pattern the pattern where the hit was discovered
+     * @return true only, if a highest priority pattern was hit - then the search can be aborted, false else
+     */
     private boolean handlePatternFound(PatternRecord pattern) {
         foundMessage = pattern.foundMessage();
         patterns = patterns.stream().filter(p -> p.priority() > pattern.priority()).toList();
         return patterns.isEmpty();
     }
 
+    /**
+     * method that checksa the current buffer for one specific pattern.
+     * @return the result of the sarch for the pattern in this buffer
+     */
     private boolean bufferContainsSearchPattern(byte[] buffer, PatternRecord pattern) {
         int bufferLength = buffer.length;
         int position = 0;
@@ -65,6 +76,11 @@ public class KnuthMorrisPrattStrategy implements SearchStrategy {
         return false;
     }
 
+    /**
+     * as core part of KMP algorithm, get the matching length of the pattern at the specified position to apply appropriate
+     * jump
+     * @return the number of bytes of the pattenr that match here.
+     */
     private int getMatchLengthAtPosition(byte[] buffer, int position, PatternRecord pattern) {
         int length = 0;
         while (length < pattern.searchLength && buffer[position + length] == pattern.searchBytes[length]) {
@@ -73,13 +89,20 @@ public class KnuthMorrisPrattStrategy implements SearchStrategy {
         return length;
     }
 
+    /**
+     * takes one SearchPattern as read from patterns.db and initializes the attached PatternRecord - e.g. with
+     * prefix function.
+     * @return the mapped PatternRecord.
+     */
     private PatternRecord initializePrefixAndSearchBytes(SearchPattern pattern) {
         return new PatternRecord(new PrefixFinder(pattern.searchText()).getPrefix(),
                 DEFAULT_CHARSET.encode(pattern.searchText()).array(), pattern.priority(),
                 pattern.searchText().length(), pattern.searchText(), pattern.foundMessage());
     }
 
-
+    /**
+     * inner record class that represents all data for one of the various patterns used in the multi-pattern search.
+     */
     private record PatternRecord(int[] prefix,
                                    byte[] searchBytes,
                                    int priority,

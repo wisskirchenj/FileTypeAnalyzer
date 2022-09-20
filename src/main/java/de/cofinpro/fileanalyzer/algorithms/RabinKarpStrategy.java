@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * implementation of a multi-pattern search Rabin-Karp algorithm.
+ */
 public class RabinKarpStrategy implements SearchStrategy{
 
     private List<PatternRecord> patterns = new ArrayList<>();
@@ -17,6 +20,9 @@ public class RabinKarpStrategy implements SearchStrategy{
         return foundMessage;
     }
 
+    /**
+     * "builder-like" method to set the search pattern after creating the search strategy
+     */
     @Override
     public SearchStrategy setSearchPatterns(List<SearchPattern> priorityDescendingPatterns) {
         priorityDescendingPatterns
@@ -25,11 +31,12 @@ public class RabinKarpStrategy implements SearchStrategy{
     }
 
     /**
-     * the KMP algorithm is adapted immediately on the byte-array read by the FileInputStream of the analyzer
+     * the RabinKarp algorithm is adapted immediately on the byte-array read by the FileInputStream of the analyzer
      * method to save memory and decoding time. To compare it with the search string given as String type,
-     * the searchText is encoded to byte[] too. The compare in KMP is on bytes then - instead of char.
+     * the searchText is encoded to byte[] too.
      * @param buffer the bytes buffer to search in
-     * @return true if search string found, false else.
+     * @return true only if one of the highest priority search strings is found, otherwise after reading all bytes, the
+     *         getFoundMessage can be used to get the best result if any was found.
      */
     @Override
     public boolean fileTypeDetected(byte[] buffer) {
@@ -52,6 +59,9 @@ public class RabinKarpStrategy implements SearchStrategy{
         patterns.forEach(pattern -> pattern.hashCalculator().resetPattern(buffer));
     }
 
+    /**
+     * check one pattern at the given buffer psoition - strings are only compared, of hashes match
+     */
     private boolean searchPatternAtPosition(byte[] buffer, int position, PatternRecord pattern) {
         if (position + pattern.searchLength() <= buffer.length
                 && pattern.hash() == pattern.hashCalculator().getRollingHash(buffer, position)) {
@@ -62,6 +72,12 @@ public class RabinKarpStrategy implements SearchStrategy{
         return false;
     }
 
+    /**
+     * called when a match to a search pattern was found. If the match has hoghest priority iit is stored and
+     * all searches with same or lower priority are aborted.
+     * @param pattern the pattern structrue, that had the hit.
+     * @return true, if the match was for highest priority, i.e. the search can be stopped.
+     */
     private boolean fileTypeDeterminedWithFoundPattern(PatternRecord pattern) {
         if (pattern.priority() > foundPriority) {
             foundMessage = pattern.foundMessage();
@@ -71,6 +87,9 @@ public class RabinKarpStrategy implements SearchStrategy{
         return patterns.isEmpty();
     }
 
+    /** takes one SearchPattern as read from patterns.db and initializes the attached PatternRecord - e.g. with
+     * a RollingHashCalculator and the hash value of the pattern.
+     */
     private PatternRecord initializeHashAndSearchBytes(SearchPattern pattern) {
         byte[] searchBytes = pattern.searchText().getBytes();
         var hashCalculator = new RollingHashCalculator(searchBytes);
@@ -79,6 +98,10 @@ public class RabinKarpStrategy implements SearchStrategy{
                 pattern.searchText().length(), pattern.searchText(), pattern.foundMessage());
     }
 
+    /**
+     * inner record structure to pass between methods during stream processing.
+     * Instances are created and initialized once, when the patterns are set after construction of the strategy.
+     */
     private record PatternRecord(RollingHashCalculator hashCalculator,
                                  int hash,
                                  byte[] searchBytes,

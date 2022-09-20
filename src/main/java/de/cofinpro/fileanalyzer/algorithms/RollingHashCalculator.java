@@ -1,5 +1,9 @@
 package de.cofinpro.fileanalyzer.algorithms;
 
+/**
+ * generic class to calculate polynomial hashes of degree searchText-Length - 1 and rolling hashes
+ * for moving byte buffer positions.
+ */
 public class RollingHashCalculator {
 
     // prime Q for taking modulo in hashing calculations

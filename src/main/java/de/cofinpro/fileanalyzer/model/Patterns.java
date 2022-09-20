@@ -30,6 +30,10 @@ public class Patterns {
         return searchPatterns;
     }
 
+    /**
+     *
+     * @return the maximum length of all the search patterns got from parsing the CSV-file.
+     */
     public long getMaxSearchLength() {
         return searchPatterns.stream()
                 .map(SearchPattern::searchText).mapToLong(String::length).max().orElse(0);

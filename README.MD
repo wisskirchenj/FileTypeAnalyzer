@@ -34,7 +34,7 @@ Have fun!
 
 ## Project completion
 
-[//]: # (Project was completed on xx.0d.22.)
+Project was completed on 20.09.22.
 
 ## Progress
 
@@ -51,3 +51,7 @@ service with KMP-algorithm - use of DirectoryStream.
 
 15.09.22 Stage 4 completed - Read in a CL-argument specified CSV-file with prioritized search patterns to identify the file
 type of an arbitrary (binary) file. Perform parallelized multi-threaded search on all files of a directory for all the patterns.
+
+20.09.22 Final Stage 5 completed - Implemented a multi-pattern search with variable length patterns (not ideal) using 
+Rabin-Karp algorithm and polynomial rolling hash functions. Though carefully implemented - optimized for speed, the performance
+is about a factor 3 to 5 worse, than with the Knuth-Morris-Pratt algorithm.

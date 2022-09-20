@@ -49,6 +49,13 @@ public class ParallelFileAnalyzer {
         }
     }
 
+    /**
+     * returns a Runnable for execution by the thread pool. Uses try catch to bring up some possible thread exception,
+     * that otherwise vanishes in Nirvana...
+     * @param patterns the Patterns structure to use in the analysis.
+     * @param path the path to the file which is analyzed in a dedicated thread worker
+     * @return runnable job
+     */
     private Runnable getJob(Patterns patterns, Path path) {
         return () -> {
             try {
