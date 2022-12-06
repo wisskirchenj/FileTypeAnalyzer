@@ -43,9 +43,10 @@ public class ParallelFileAnalyzer {
                     executor.submit(getJob(patterns, path));
                 }
             });
-            shutDownExecutorAndWait(executor);
         } catch (IOException exception) {
             printer.printError("Could not read from directory '%s'!%n%s".formatted(dirPath, exception.toString()));
+        } finally {
+            shutDownExecutorAndWait(executor);
         }
     }
 
